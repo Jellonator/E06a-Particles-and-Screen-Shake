@@ -1,19 +1,163 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=18 format=2]
 
 [ext_resource path="res://Scripts/Camera.gd" type="Script" id=1]
 [ext_resource path="res://Scripts/World.gd" type="Script" id=2]
+[ext_resource path="res://Assets/rigzsoft/Nature/leaf.png" type="Texture" id=3]
+[ext_resource path="res://falling_leaves.shader" type="Shader" id=4]
+[ext_resource path="res://Assets/rigzsoft/Smoke/Fog1.png" type="Texture" id=5]
+[ext_resource path="res://Assets/rigzsoft/Flames/FireBall3.png" type="Texture" id=6]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type canvas_item;
+
+uniform float pixel_size = 2.0;
+uniform float min_speed = 0.25;
+uniform float max_speed = 1.25;
+uniform vec2 direction = vec2(0.15, 1.0);
+uniform float rain_length = 0.5;
+uniform float rain_repeat = 4.0;
+uniform float row_coverage = 1.0;
+
+// This psuedo-random function is credited to The Book of Shaders by 
+// Patricio Gonzalez Vivo & Jen Lowe.
+// Generates a float between 0 and 1.
+float rand(vec2 co){
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+void fragment() {
+	vec2 dir = normalize(direction);
+	vec2 screenpos = round(SCREEN_UV / (pixel_size * SCREEN_PIXEL_SIZE));
+	vec2 rainpos = screenpos * pixel_size * SCREEN_PIXEL_SIZE;
+	float row = round(screenpos.x * dir.y + screenpos.y * dir.x);
+	if (rand(vec2(5.4, row)) > row_coverage) {
+		COLOR = vec4(0.0, 0.0, 0.0, 0.0);
+	} else {
+		float rng = rand(vec2(row, 0.0));
+		float speed = rand(vec2(row, 1.0));
+		float pos = rainpos.x * dir.x + rainpos.y * dir.y;
+		if (mod(TIME*(min_speed + speed * (max_speed - min_speed)) + rng + pos, 1.0/rain_repeat) < rain_length/rain_repeat) {
+			COLOR = vec4(0.0, 0.0, 1.0, 1.0);
+		} else {
+			COLOR = vec4(0.0, 0.0, 0.0, 0.0);
+		}
+	}
+}"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+shader_param/pixel_size = 2.0
+shader_param/min_speed = 0.25
+shader_param/max_speed = 0.75
+shader_param/direction = Vector2( 2, 5 )
+shader_param/rain_length = 0.15
+shader_param/rain_repeat = 4.0
+shader_param/row_coverage = 1.0
+
+[sub_resource type="ShaderMaterial" id=3]
+shader = ExtResource( 4 )
+shader_param/direction = Vector3( 0, 1, 0 )
+shader_param/spread = 45.0
+shader_param/initial_linear_velocity = 0.0
+shader_param/initial_angle = 0.0
+shader_param/scale = 0.1
+shader_param/hue_variation = 0.0
+shader_param/anim_speed = 0.0
+shader_param/anim_offset = 0.0
+shader_param/initial_linear_velocity_random = 0.0
+shader_param/initial_angle_random = 0.0
+shader_param/scale_random = 0.0
+shader_param/hue_variation_random = 0.0
+shader_param/anim_speed_random = 0.0
+shader_param/anim_offset_random = 0.0
+shader_param/lifetime_randomness = 0.0
+shader_param/color_value = Color( 0.105882, 0.509804, 0.105882, 1 )
+
+[sub_resource type="Gradient" id=4]
+offsets = PoolRealArray( 0, 0.345277, 0.638436, 1 )
+colors = PoolColorArray( 1, 1, 1, 0, 1, 1, 1, 0.164706, 1, 1, 1, 0.0666667, 1, 1, 1, 0 )
+
+[sub_resource type="GradientTexture" id=5]
+gradient = SubResource( 4 )
+
+[sub_resource type="ParticlesMaterial" id=6]
+emission_shape = 2
+emission_box_extents = Vector3( 600, 200, 1 )
+flag_disable_z = true
+spread = 180.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 10.0
+initial_velocity_random = 0.9
+angular_velocity = 25.0
+angular_velocity_random = 1.0
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+angle = 360.0
+angle_random = 1.0
+scale = 0.5
+color_ramp = SubResource( 5 )
+
+[sub_resource type="Gradient" id=7]
+offsets = PoolRealArray( 0.0130293, 0.241042, 0.511401, 0.775244, 0.983713 )
+colors = PoolColorArray( 1, 0.823529, 0.00784314, 0.843137, 0.984314, 0.572549, 0.0431373, 0.823529, 0.996078, 0.0156863, 0.0156863, 0.772549, 0.470588, 0.360784, 0.360784, 0.764706, 0.945098, 0.933333, 0.933333, 0 )
+
+[sub_resource type="GradientTexture" id=8]
+gradient = SubResource( 7 )
+
+[sub_resource type="Curve" id=9]
+_data = [ Vector2( 0, 0.231818 ), 0.0, 3.26471, 0, 0, Vector2( 0.475758, 1 ), 0.0, 0.0, 0, 0, Vector2( 1, 0.404545 ), -2.10714, 0.0, 0, 0 ]
+
+[sub_resource type="CurveTexture" id=10]
+curve = SubResource( 9 )
+
+[sub_resource type="ParticlesMaterial" id=11]
+emission_shape = 1
+emission_sphere_radius = 20.0
+flag_disable_z = true
+direction = Vector3( 0, -1, 0 )
+spread = 15.0
+gravity = Vector3( 0, -98, 0 )
+initial_velocity = 100.0
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+linear_accel = 100.0
+scale = 0.5
+scale_curve = SubResource( 10 )
+color_ramp = SubResource( 8 )
+anim_speed = 100.0
 
 [node name="World" type="Node2D"]
 script = ExtResource( 2 )
 
+[node name="Rain" type="Polygon2D" parent="."]
+material = SubResource( 2 )
+polygon = PoolVector2Array( 0, 0, 1024, 0, 1024, 600, 0, 600 )
+uv = PoolVector2Array( 0, 0, 1, 0, 1, 0, 1, 1 )
+
 [node name="Particles1" type="Particles2D" parent="."]
 position = Vector2( 128, 256 )
+amount = 16
+lifetime = 40.0
+visibility_rect = Rect2( -120, -100, 240, 640 )
+process_material = SubResource( 3 )
+texture = ExtResource( 3 )
 
 [node name="Particles2" type="Particles2D" parent="."]
-position = Vector2( 512, 256 )
+position = Vector2( 506.168, 539.423 )
+amount = 100
+lifetime = 5.0
+preprocess = 10.0
+visibility_rect = Rect2( -800, -400, 1600, 800 )
+process_material = SubResource( 6 )
+texture = ExtResource( 5 )
 
 [node name="Particles3" type="Particles2D" parent="."]
-position = Vector2( 896, 256 )
+position = Vector2( 852.468, 492.705 )
+amount = 64
+visibility_rect = Rect2( -100, -300, 200, 400 )
+draw_order = 1
+process_material = SubResource( 11 )
+texture = ExtResource( 6 )
 
 [node name="Camera" type="Camera2D" parent="."]
 position = Vector2( 512, 304 )
