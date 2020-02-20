@@ -1,5 +1,9 @@
 # E06a-Particles-and-Screen-Shake
 
+😎 😎 😎 😎 😎 😎 😎 😎 😎 😎 😎 😎 😎 😎 😎 😎 😎 😎 😎 😎
+I added a floating leaf particle (I would have made a floating feather, but there were no feather textures and I didn't feel like searching for any), fog particles, and fireball particles. I couldn't get Godot's particle material to simulate the floating feather how I wanted, so I converted it to a shader material and made some modifications to get it to behave how I wanted. I also made a rain shader that displays in the background just because.
+😎 😎 😎 😎 😎 😎 😎 😎 😎 😎 😎 😎 😎 😎 😎 😎 😎 😎 😎 😎
+
 As with other exercises, Fork and Clone this repository.
 
 This exercise is an opportunity to experiment with the Particles2D node in Godot and to give you a script with which you can implement screen shake.
